@@ -55,7 +55,14 @@ const API_ENDPOINTS = {
   
   ADMIN: {
     // Dashboard
-    'GET /v1/admin/dashboard': 'Dashboard overview (TODO)',
+    'GET /v1/admin/dashboard': 'Get dashboard summary metrics',
+    'GET /v1/admin/dashboard/reports': 'Get detailed report statistics',
+    'GET /v1/admin/dashboard/health': 'Get system health metrics',
+    'GET /v1/admin/dashboard/activity': 'Get admin activity summary',
+    
+    // Profile
+    'GET /v1/admin/profile': 'Get current admin profile',
+    'PUT /v1/admin/profile': 'Update current admin profile',
     
     // News Management
     'GET /v1/admin/news': 'Get all news with filters (admin)',
@@ -273,6 +280,7 @@ console.log('   ✅ Report Categories');
 console.log('   ✅ News Management');
 console.log('   ✅ Events Management');
 console.log('   ✅ Contact Messages');
+console.log('   ✅ Admin Dashboard & Monitoring');
 console.log('   🔄 User Management (TODO)');
 console.log('   🔄 System Settings (TODO)');
 

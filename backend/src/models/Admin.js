@@ -10,10 +10,23 @@ export const ADMIN_ROLES = {
 // Admin account status enum
 export const ADMIN_STATUS = {
   ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED',
   DISABLED: 'DISABLED'
 };
 
 const adminSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    unique: true,
+    sparse: true, // Allow null values but enforce uniqueness when present
+    trim: true,
+    lowercase: true,
+    minlength: [3, 'Username must be at least 3 characters long'],
+    maxlength: [30, 'Username cannot exceed 30 characters'],
+    match: [/^[a-z0-9_-]+$/, 'Username can only contain lowercase letters, numbers, hyphens, and underscores']
+  },
+  
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -54,7 +67,7 @@ const adminSchema = new mongoose.Schema({
     type: String,
     enum: {
       values: Object.values(ADMIN_STATUS),
-      message: 'Status must be either ACTIVE or DISABLED'
+      message: 'Status must be ACTIVE, INACTIVE, SUSPENDED, or DISABLED'
     },
     default: ADMIN_STATUS.ACTIVE,
     required: true

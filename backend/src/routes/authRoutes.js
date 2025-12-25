@@ -7,6 +7,7 @@ import {
   changePassword, 
   validateToken 
 } from '../controllers/authController.js';
+import { updateAdminProfile } from '../controllers/dashboardController.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -47,6 +48,7 @@ router.use(authenticate); // All routes below require authentication
 
 router.post('/logout', logout);
 router.get('/profile', getProfile);
+router.put('/profile', updateAdminProfile);
 router.put('/change-password', authLimiter, changePassword);
 router.get('/validate', validateToken);
 
