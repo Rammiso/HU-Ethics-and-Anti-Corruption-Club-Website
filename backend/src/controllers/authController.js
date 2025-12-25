@@ -1,26 +1,88 @@
-// Authentication controller
-// Handles login, logout, token refresh, and password management
+import authService from '../services/authService.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
-export const login = async (req, res, next) => {
-  // TODO: Implement login logic
-};
+/**
+ * Authentication Controller
+ * Handles HTTP requests for admin authentication
+ */
 
-export const logout = async (req, res, next) => {
-  // TODO: Implement logout logic
-};
+/**
+ * Admin login
+ * POST /api/v1/auth/login
+ */
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('User-Agent');
+  
+  const result = await authService.login(email, password, ipAddress, userAgent);
+  
+  res.status(200).json({
+    success: true,
+    message: 'Login successful',
+    data: result
+  });
+});
 
-export const refreshToken = async (req, res, next) => {
-  // TODO: Implement token refresh logic
-};
+/**
+ * Admin logout
+ * POST /api/v1/auth/logout
+ */
+export const logout = asyncHandler(async (req, res) => {
+  const adminId = req.admin.id;
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  
+  const result = await authService.logout(adminId, ipAddress);
+  
+  res.status(200).json({
+    success: true,
+    message: result.message
+  });
+});
 
-export const changePassword = async (req, res, next) => {
-  // TODO: Implement password change logic
-};
+/**
+ * Get current admin profile
+ * GET /api/v1/auth/profile
+ */
+export const getProfile = asyncHandler(async (req, res) => {
+  const adminId = req.admin.id;
+  
+  const admin = await authService.getProfile(adminId);
+  
+  res.status(200).json({
+    success: true,
+    data: admin
+  });
+});
 
-export const forgotPassword = async (req, res, next) => {
-  // TODO: Implement forgot password logic
-};
+/**
+ * Change admin password
+ * PUT /api/v1/auth/change-password
+ */
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const adminId = req.admin.id;
+  
+  const result = await authService.changePassword(adminId, currentPassword, newPassword);
+  
+  res.status(200).json({
+    success: true,
+    message: result.message
+  });
+});
 
-export const resetPassword = async (req, res, next) => {
-  // TODO: Implement reset password logic
-};
+/**
+ * Validate token (for frontend token verification)
+ * GET /api/v1/auth/validate
+ */
+export const validateToken = asyncHandler(async (req, res) => {
+  // If we reach here, token is valid (middleware already verified it)
+  res.status(200).json({
+    success: true,
+    message: 'Token is valid',
+    data: {
+      admin: req.admin,
+      tokenValid: true
+    }
+  });
+});
