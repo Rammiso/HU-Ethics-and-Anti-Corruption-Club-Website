@@ -10,6 +10,18 @@ import {
   exportAuditLogs,
   getMyAuditLogs
 } from '../controllers/auditController.js';
+import {
+  getReportsForAdmin,
+  getReportDetailsForAdmin,
+  updateReportStatus,
+  assignReport,
+  addInternalNote,
+  sendMessageToReporter,
+  downloadEvidenceFile,
+  getReportStatistics,
+  bulkUpdateReports
+} from '../controllers/reportController.js';
+import reportCategoryRoutes from './reportCategoryRoutes.js';
 
 const router = express.Router();
 
@@ -34,35 +46,66 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
  * Reports Management Routes (Admin access)
  */
 
-// Get all reports (with filtering)
-router.get('/reports', requireAdmin, auditView('Report', { logViews: true }), asyncHandler(async (req, res) => {
-  // TODO: Implement reports listing with filters
-  res.status(501).json({
-    success: false,
-    message: 'Reports management endpoint not implemented yet',
-    note: 'This will return paginated reports with filtering options'
-  });
-}));
+// Get all reports (with filtering and pagination)
+router.get('/reports', 
+  requireAdmin, 
+  auditView('Report', { logViews: true }), 
+  asyncHandler(getReportsForAdmin)
+);
+
+// Get report statistics
+router.get('/reports/statistics', 
+  requireAdmin, 
+  asyncHandler(getReportStatistics)
+);
+
+// Bulk update reports
+router.post('/reports/bulk-update', 
+  requireAdmin, 
+  asyncHandler(bulkUpdateReports)
+);
 
 // Get specific report details
-router.get('/reports/:id', requireAdmin, auditView('Report', { logViews: true }), asyncHandler(async (req, res) => {
-  // TODO: Implement report details retrieval
-  res.status(501).json({
-    success: false,
-    message: 'Report details endpoint not implemented yet',
-    note: 'This will return full report details including evidence'
-  });
-}));
+router.get('/reports/:id', 
+  requireAdmin, 
+  auditView('Report', { logViews: true }), 
+  asyncHandler(getReportDetailsForAdmin)
+);
 
 // Update report status
-router.put('/reports/:id/status', requireAdmin, asyncHandler(async (req, res) => {
-  // TODO: Implement report status updates with audit logging
-  res.status(501).json({
-    success: false,
-    message: 'Report status update endpoint not implemented yet',
-    note: 'This will update report status and add to status history'
-  });
-}));
+router.put('/reports/:id/status', 
+  requireAdmin, 
+  asyncHandler(updateReportStatus)
+);
+
+// Assign report to admin
+router.put('/reports/:id/assign', 
+  requireAdmin, 
+  asyncHandler(assignReport)
+);
+
+// Add internal note to report
+router.post('/reports/:id/notes', 
+  requireAdmin, 
+  asyncHandler(addInternalNote)
+);
+
+// Send message to reporter
+router.post('/reports/:id/messages', 
+  requireAdmin, 
+  asyncHandler(sendMessageToReporter)
+);
+
+// Download evidence file
+router.get('/reports/:id/evidence/:filename', 
+  requireAdmin, 
+  asyncHandler(downloadEvidenceFile)
+);
+
+/**
+ * Report Categories Management Routes (Admin access)
+ */
+router.use('/report-categories', reportCategoryRoutes);
 
 /**
  * Content Management Routes (Admin access)

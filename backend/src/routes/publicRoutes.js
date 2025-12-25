@@ -1,5 +1,12 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { uploadEvidence, cleanupTempFiles } from '../middleware/upload.js';
+import {
+  submitAnonymousReport,
+  trackReportStatus,
+  addReportMessage
+} from '../controllers/reportController.js';
+import { getActiveReportCategories } from '../controllers/reportCategoryController.js';
 
 const router = express.Router();
 
@@ -56,25 +63,21 @@ router.get('/events/:id', asyncHandler(async (req, res) => {
  * Anonymous reporting routes
  */
 
-// Submit anonymous report
-router.post('/reports', asyncHandler(async (req, res) => {
-  // TODO: Implement anonymous report submission
-  res.status(501).json({
-    success: false,
-    message: 'Anonymous report submission endpoint not implemented yet',
-    note: 'This will handle anonymous report submissions with evidence upload'
-  });
-}));
+// Get active report categories for report submission form
+router.get('/report-categories', asyncHandler(getActiveReportCategories));
 
-// Track report status (anonymous)
-router.get('/reports/track/:trackingId', asyncHandler(async (req, res) => {
-  // TODO: Implement report tracking
-  res.status(501).json({
-    success: false,
-    message: 'Report tracking endpoint not implemented yet',
-    note: 'This will return report status using tracking ID'
-  });
-}));
+// Submit anonymous report with evidence files
+router.post('/reports', 
+  uploadEvidence, 
+  cleanupTempFiles, 
+  asyncHandler(submitAnonymousReport)
+);
+
+// Track report status using tracking ID
+router.get('/reports/track/:trackingId', asyncHandler(trackReportStatus));
+
+// Add message to existing report (anonymous follow-up)
+router.post('/reports/:trackingId/messages', asyncHandler(addReportMessage));
 
 /**
  * Contact routes
