@@ -7,6 +7,8 @@ import {
   addReportMessage
 } from '../controllers/reportController.js';
 import { getActiveReportCategories } from '../controllers/reportCategoryController.js';
+import newsRoutes from './newsRoutes.js';
+import eventRoutes from './eventRoutes.js';
 
 const router = express.Router();
 
@@ -19,45 +21,11 @@ const router = express.Router();
  * Public content routes
  */
 
-// Get published news articles
-router.get('/news', asyncHandler(async (req, res) => {
-  // TODO: Implement public news listing
-  res.status(501).json({
-    success: false,
-    message: 'Public news endpoint not implemented yet',
-    note: 'This will return published news articles'
-  });
-}));
+// News routes
+router.use('/news', newsRoutes);
 
-// Get specific news article
-router.get('/news/:id', asyncHandler(async (req, res) => {
-  // TODO: Implement public news article retrieval
-  res.status(501).json({
-    success: false,
-    message: 'Public news article endpoint not implemented yet',
-    note: 'This will return a specific published news article'
-  });
-}));
-
-// Get published events
-router.get('/events', asyncHandler(async (req, res) => {
-  // TODO: Implement public events listing
-  res.status(501).json({
-    success: false,
-    message: 'Public events endpoint not implemented yet',
-    note: 'This will return published events'
-  });
-}));
-
-// Get specific event
-router.get('/events/:id', asyncHandler(async (req, res) => {
-  // TODO: Implement public event retrieval
-  res.status(501).json({
-    success: false,
-    message: 'Public event endpoint not implemented yet',
-    note: 'This will return a specific published event'
-  });
-}));
+// Events routes
+router.use('/events', eventRoutes);
 
 /**
  * Anonymous reporting routes

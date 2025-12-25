@@ -22,6 +22,8 @@ import {
   bulkUpdateReports
 } from '../controllers/reportController.js';
 import reportCategoryRoutes from './reportCategoryRoutes.js';
+import newsRoutes from './newsRoutes.js';
+import eventRoutes from './eventRoutes.js';
 
 const router = express.Router();
 
@@ -112,34 +114,10 @@ router.use('/report-categories', reportCategoryRoutes);
  */
 
 // News management
-router.get('/news', requireAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'News management endpoint not implemented yet'
-  });
-}));
-
-router.post('/news', requireAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'News creation endpoint not implemented yet'
-  });
-}));
+router.use('/news', newsRoutes);
 
 // Events management
-router.get('/events', requireAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Events management endpoint not implemented yet'
-  });
-}));
-
-router.post('/events', requireAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Event creation endpoint not implemented yet'
-  });
-}));
+router.use('/events', eventRoutes);
 
 /**
  * Contact Messages Routes (Admin access)
