@@ -1,20 +1,27 @@
 import { AppError } from './errorHandler.js';
-import { USER_ROLES } from '../utils/constants.js';
+import { ADMIN_ROLES } from '../models/Admin.js';
 
+/**
+ * Legacy authorization middleware (kept for backward compatibility)
+ * Use the new auth.js middleware instead
+ */
 export const authorize = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!req.user) {
-      return next(new AppError('Authentication required', 401));
+    if (!req.admin) {
+      return next(new AppError('Authentication required', 401, 'AUTHENTICATION_REQUIRED'));
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
-      return next(new AppError('Insufficient permissions', 403));
+    if (!allowedRoles.includes(req.admin.role)) {
+      return next(new AppError('Insufficient permissions', 403, 'INSUFFICIENT_PERMISSIONS'));
     }
 
     next();
   };
 };
 
-export const isSystemAdmin = authorize(USER_ROLES.SYSTEM_ADMIN);
-export const isCaseManager = authorize(USER_ROLES.CASE_MANAGER, USER_ROLES.SYSTEM_ADMIN);
-export const isContentManager = authorize(USER_ROLES.CONTENT_MANAGER, USER_ROLES.SYSTEM_ADMIN);
+// Convenience exports using the new role constants
+export const isSystemAdmin = authorize(ADMIN_ROLES.SUPER_ADMIN);
+export const isCaseManager = authorize(ADMIN_ROLES.ADMIN, ADMIN_ROLES.SUPER_ADMIN);
+export const isContentManager = authorize(ADMIN_ROLES.ADMIN, ADMIN_ROLES.SUPER_ADMIN);
+
+// Note: This file is deprecated. Use middleware/auth.js instead

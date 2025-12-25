@@ -10,9 +10,10 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:db": "node src/scripts/testConnection.js",
+    "test:auth": "node src/scripts/testAuth.js",
+    "create:admin": "node src/scripts/createAdmin.js",
     "lint": "eslint src/**/*.js",
-    "lint:fix": "eslint src/**/*.js --fix",
-    "db:seed": "node src/scripts/seedDatabase.js"
+    "lint:fix": "eslint src/**/*.js --fix"
   },
   "keywords": ["ethics", "anti-corruption", "university", "reporting", "mongodb", "express"],
   "author": "Haramaya University",

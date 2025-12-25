@@ -1,24 +1,53 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
+import { 
+  login, 
+  logout, 
+  getProfile, 
+  changePassword, 
+  validateToken 
+} from '../controllers/authController.js';
 import { authenticate } from '../middleware/auth.js';
-import { strictRateLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-// Placeholder controller functions - to be implemented
-const authController = {
-  login: (req, res) => res.json({ message: 'Login endpoint' }),
-  logout: (req, res) => res.json({ message: 'Logout endpoint' }),
-  refresh: (req, res) => res.json({ message: 'Refresh token endpoint' }),
-  changePassword: (req, res) => res.json({ message: 'Change password endpoint' }),
-  forgotPassword: (req, res) => res.json({ message: 'Forgot password endpoint' }),
-  resetPassword: (req, res) => res.json({ message: 'Reset password endpoint' }),
-};
+// Rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many authentication attempts, please try again later',
+    code: 'TOO_MANY_ATTEMPTS'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip successful requests
+  skipSuccessfulRequests: true
+});
 
-router.post('/login', strictRateLimiter, authController.login);
-router.post('/logout', authenticate, authController.logout);
-router.post('/refresh', authController.refresh);
-router.post('/change-password', authenticate, authController.changePassword);
-router.post('/forgot-password', strictRateLimiter, authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
+// Stricter rate limiting for login attempts
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 login attempts per windowMs
+  message: {
+    success: false,
+    message: 'Too many login attempts, please try again later',
+    code: 'TOO_MANY_LOGIN_ATTEMPTS'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Public authentication routes (no auth required)
+router.post('/login', loginLimiter, login);
+
+// Protected authentication routes (require valid JWT)
+router.use(authenticate); // All routes below require authentication
+
+router.post('/logout', logout);
+router.get('/profile', getProfile);
+router.put('/change-password', authLimiter, changePassword);
+router.get('/validate', validateToken);
 
 export default router;

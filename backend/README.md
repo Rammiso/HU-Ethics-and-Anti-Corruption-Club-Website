@@ -25,6 +25,7 @@ npm install
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
+# IMPORTANT: Set a secure JWT_SECRET in production
 ```
 
 4. **Test MongoDB connection:**
@@ -32,12 +33,49 @@ cp .env.example .env
 npm run test:db
 ```
 
-5. **Start development server:**
+5. **Create initial admin users:**
+```bash
+npm run create:admin
+```
+
+6. **Test authentication system:**
+```bash
+npm run test:auth
+```
+
+7. **Start development server:**
 ```bash
 npm run dev
 ```
 
 The server will start on `http://localhost:3000`
+
+## 🔐 Authentication
+
+### Admin Login
+```bash
+# Default admin credentials (change immediately!)
+Super Admin:
+  Email: admin@hueacc.edu.et
+  Password: Admin123!@#
+
+Regular Admin:
+  Email: manager@hueacc.edu.et
+  Password: Manager123!@#
+```
+
+### API Authentication
+```bash
+# Login to get JWT token
+POST /api/v1/auth/login
+{
+  "email": "admin@hueacc.edu.et",
+  "password": "Admin123!@#"
+}
+
+# Use token in subsequent requests
+Authorization: Bearer <your-jwt-token>
+```
 
 ## 📊 API Endpoints
 
@@ -46,13 +84,27 @@ The server will start on `http://localhost:3000`
 - `GET /api` - API information
 - `GET /api/health` - Detailed health check
 
-### Planned Endpoints (Coming Soon)
-- `POST /api/v1/auth/login` - Admin authentication
-- `POST /api/v1/reports` - Submit anonymous report
-- `GET /api/v1/reports/track/:trackingId` - Track report status
-- `GET /api/v1/news` - Get published news
-- `GET /api/v1/events` - Get published events
-- `POST /api/v1/contact` - Submit contact message
+### Authentication (Implemented ✅)
+- `POST /api/v1/auth/login` - Admin login
+- `POST /api/v1/auth/logout` - Admin logout (requires auth)
+- `GET /api/v1/auth/profile` - Get admin profile (requires auth)
+- `PUT /api/v1/auth/change-password` - Change password (requires auth)
+- `GET /api/v1/auth/validate` - Validate token (requires auth)
+
+### Public Routes (Placeholder)
+- `GET /api/v1/public/news` - Get published news
+- `GET /api/v1/public/events` - Get published events
+- `POST /api/v1/public/reports` - Submit anonymous report
+- `GET /api/v1/public/reports/track/:trackingId` - Track report status
+- `POST /api/v1/public/contact` - Submit contact message
+
+### Admin Routes (Protected, Placeholder)
+- `GET /api/v1/admin/dashboard` - Admin dashboard data
+- `GET /api/v1/admin/reports` - Manage reports
+- `GET /api/v1/admin/news` - Manage news
+- `GET /api/v1/admin/events` - Manage events
+- `GET /api/v1/admin/users` - User management (Super Admin only)
+- `GET /api/v1/admin/audit-logs` - Audit logs (Super Admin only)
 
 ## 🛠️ Development
 
@@ -62,9 +114,11 @@ npm run dev          # Start development server with auto-reload
 npm start           # Start production server
 npm run test        # Run test suite
 npm run test:watch  # Run tests in watch mode
+npm run test:db     # Test database connection
+npm run test:auth   # Test authentication system
+npm run create:admin # Create initial admin users
 npm run lint        # Check code style
 npm run lint:fix    # Fix code style issues
-npm run test:db     # Test database connection
 ```
 
 ### Project Structure
