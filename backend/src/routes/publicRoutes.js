@@ -1,12 +1,14 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { uploadEvidence, cleanupTempFiles } from '../middleware/upload.js';
+import { contactFormRateLimit, reportSubmissionRateLimit } from '../middleware/rateLimiting.js';
 import {
   submitAnonymousReport,
   trackReportStatus,
   addReportMessage
 } from '../controllers/reportController.js';
 import { getActiveReportCategories } from '../controllers/reportCategoryController.js';
+import { submitContactMessage } from '../controllers/contactController.js';
 import newsRoutes from './newsRoutes.js';
 import eventRoutes from './eventRoutes.js';
 
@@ -36,6 +38,7 @@ router.get('/report-categories', asyncHandler(getActiveReportCategories));
 
 // Submit anonymous report with evidence files
 router.post('/reports', 
+  reportSubmissionRateLimit,
   uploadEvidence, 
   cleanupTempFiles, 
   asyncHandler(submitAnonymousReport)
@@ -52,14 +55,10 @@ router.post('/reports/:trackingId/messages', asyncHandler(addReportMessage));
  */
 
 // Submit contact message
-router.post('/contact', asyncHandler(async (req, res) => {
-  // TODO: Implement contact message submission
-  res.status(501).json({
-    success: false,
-    message: 'Contact submission endpoint not implemented yet',
-    note: 'This will handle public contact form submissions'
-  });
-}));
+router.post('/contact', 
+  contactFormRateLimit,
+  asyncHandler(submitContactMessage)
+);
 
 /**
  * Public statistics (for transparency)

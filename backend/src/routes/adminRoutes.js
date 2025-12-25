@@ -21,9 +21,18 @@ import {
   getReportStatistics,
   bulkUpdateReports
 } from '../controllers/reportController.js';
+import {
+  getDashboardSummary,
+  getReportStatistics as getDashboardReportStats,
+  getSystemHealth,
+  getAdminActivity,
+  getAdminProfile,
+  updateAdminProfile
+} from '../controllers/dashboardController.js';
 import reportCategoryRoutes from './reportCategoryRoutes.js';
 import newsRoutes from './newsRoutes.js';
 import eventRoutes from './eventRoutes.js';
+import contactRoutes from './contactRoutes.js';
 
 const router = express.Router();
 
@@ -34,15 +43,45 @@ router.use(authenticate);
  * Admin Dashboard Routes
  */
 
-// Dashboard overview (all admins)
-router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
-  // TODO: Implement dashboard data aggregation
-  res.status(501).json({
-    success: false,
-    message: 'Dashboard endpoint not implemented yet',
-    note: 'This will return system statistics and overview data'
-  });
-}));
+// Dashboard overview
+router.get('/dashboard', 
+  requireAdmin, 
+  asyncHandler(getDashboardSummary)
+);
+
+// Dashboard report statistics
+router.get('/dashboard/reports', 
+  requireAdmin, 
+  asyncHandler(getDashboardReportStats)
+);
+
+// System health
+router.get('/dashboard/health', 
+  requireAdmin, 
+  asyncHandler(getSystemHealth)
+);
+
+// Admin activity
+router.get('/dashboard/activity', 
+  requireAdmin, 
+  asyncHandler(getAdminActivity)
+);
+
+/**
+ * Admin Profile Routes
+ */
+
+// Get current admin profile
+router.get('/profile', 
+  requireAdmin, 
+  asyncHandler(getAdminProfile)
+);
+
+// Update current admin profile
+router.put('/profile', 
+  requireAdmin, 
+  asyncHandler(updateAdminProfile)
+);
 
 /**
  * Reports Management Routes (Admin access)
@@ -122,13 +161,7 @@ router.use('/events', eventRoutes);
 /**
  * Contact Messages Routes (Admin access)
  */
-
-router.get('/contact-messages', requireAdmin, auditView('ContactMessage', { logViews: true }), asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Contact messages endpoint not implemented yet'
-  });
-}));
+router.use('/contact-messages', contactRoutes);
 
 /**
  * Super Admin Only Routes

@@ -14,6 +14,7 @@
     "test:audit": "node src/scripts/testAudit.js",
     "test:reporting": "node src/scripts/testReporting.js",
     "test:news-events": "node src/scripts/testNewsEvents.js",
+    "test:contact": "node src/scripts/testContact.js",
     "create:admin": "node src/scripts/createAdmin.js",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix"

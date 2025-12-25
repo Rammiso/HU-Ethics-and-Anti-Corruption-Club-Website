@@ -31,7 +31,7 @@ const API_ENDPOINTS = {
     'POST /v1/public/reports/:trackingId/messages': 'Add follow-up message to report',
     
     // Contact
-    'POST /v1/public/contact': 'Submit contact message (TODO)',
+    'POST /v1/public/contact': 'Submit contact message',
     
     // Statistics
     'GET /v1/public/statistics': 'Get public statistics (TODO)'
@@ -98,8 +98,15 @@ const API_ENDPOINTS = {
     'PUT /v1/admin/report-categories/order/update': 'Update category display order',
     'GET /v1/admin/report-categories/:id/statistics': 'Get category statistics',
     
-    // Contact Messages
-    'GET /v1/admin/contact-messages': 'Get contact messages (TODO)',
+    // Contact Messages Management
+    'GET /v1/admin/contact-messages': 'Get all contact messages with filters',
+    'GET /v1/admin/contact-messages/statistics': 'Get contact message statistics',
+    'POST /v1/admin/contact-messages/bulk-update': 'Bulk update contact messages',
+    'GET /v1/admin/contact-messages/:id': 'Get contact message by ID',
+    'PUT /v1/admin/contact-messages/:id/status': 'Update message status',
+    'POST /v1/admin/contact-messages/:id/notes': 'Add internal note to message',
+    'PUT /v1/admin/contact-messages/:id/priority': 'Update message priority',
+    'PUT /v1/admin/contact-messages/:id/spam': 'Mark message as spam',
     
     // User Management (Super Admin only)
     'GET /v1/admin/users': 'Get all users (TODO)',
@@ -265,7 +272,7 @@ console.log('   ✅ Anonymous Reporting');
 console.log('   ✅ Report Categories');
 console.log('   ✅ News Management');
 console.log('   ✅ Events Management');
-console.log('   🔄 Contact Messages (TODO)');
+console.log('   ✅ Contact Messages');
 console.log('   🔄 User Management (TODO)');
 console.log('   🔄 System Settings (TODO)');
 
