@@ -33,6 +33,8 @@ import reportCategoryRoutes from './reportCategoryRoutes.js';
 import newsRoutes from './newsRoutes.js';
 import eventRoutes from './eventRoutes.js';
 import contactRoutes from './contactRoutes.js';
+import userManagementRoutes from './userManagementRoutes.js';
+import systemSettingsRoutes from './systemSettingsRoutes.js';
 
 const router = express.Router();
 
@@ -164,25 +166,14 @@ router.use('/events', eventRoutes);
 router.use('/contact-messages', contactRoutes);
 
 /**
- * Super Admin Only Routes
+ * User Management Routes (Super Admin only)
  */
+router.use('/users', userManagementRoutes);
 
-// User management (Super Admin only)
-router.get('/users', requireSuperAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'User management endpoint not implemented yet',
-    note: 'Super Admin access required'
-  });
-}));
-
-router.post('/users', requireSuperAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'User creation endpoint not implemented yet',
-    note: 'Super Admin access required'
-  });
-}));
+/**
+ * System Settings Routes (Super Admin only)
+ */
+router.use('/settings', systemSettingsRoutes);
 
 /**
  * Audit Logs Routes (Super Admin only)
@@ -206,13 +197,11 @@ router.get('/audit-logs/admin/:adminId', requireSuperAdmin, getAdminAuditLogs);
 // Get current admin's own activity logs (all admins can see their own)
 router.get('/audit-logs/my-activity', requireAdmin, getMyAuditLogs);
 
-// System settings (Super Admin only)
-router.get('/settings', requireSuperAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'System settings endpoint not implemented yet',
-    note: 'Super Admin access required'
-  });
-}));
+/**
+ * Audit Logs Routes (Super Admin only)
+ */
+
+// Get all audit logs with filtering
+router.get('/audit-logs', requireSuperAdmin, auditView('AuditLog', { logViews: true }), getAuditLogs);
 
 export default router;
