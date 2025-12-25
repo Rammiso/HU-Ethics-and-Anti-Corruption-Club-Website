@@ -48,8 +48,49 @@ api.interceptors.response.use(
       }
     }
 
+    // Handle network errors
+    if (!error.response) {
+      error.message = 'Network error. Please check your connection.';
+    }
+
     return Promise.reject(error);
   }
 );
+
+// API helper functions
+export const apiClient = {
+  // Generic methods
+  get: (url, config = {}) => api.get(url, config),
+  post: (url, data = {}, config = {}) => api.post(url, data, config),
+  put: (url, data = {}, config = {}) => api.put(url, data, config),
+  patch: (url, data = {}, config = {}) => api.patch(url, data, config),
+  delete: (url, config = {}) => api.delete(url, config),
+
+  // File upload helper
+  upload: (url, formData, onUploadProgress) => {
+    return api.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress,
+    });
+  },
+
+  // Download helper
+  download: (url, filename) => {
+    return api.get(url, {
+      responseType: 'blob',
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
+  },
+};
 
 export default api;
