@@ -1,6 +1,15 @@
 import express from 'express';
 import { authenticate, requireAdmin, requireSuperAdmin } from '../middleware/auth.js';
+import { auditView } from '../middleware/auditMiddleware.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import {
+  getAuditLogs,
+  getAuditStatistics,
+  getResourceAuditLogs,
+  getAdminAuditLogs,
+  exportAuditLogs,
+  getMyAuditLogs
+} from '../controllers/auditController.js';
 
 const router = express.Router();
 
@@ -26,7 +35,7 @@ router.get('/dashboard', requireAdmin, asyncHandler(async (req, res) => {
  */
 
 // Get all reports (with filtering)
-router.get('/reports', requireAdmin, asyncHandler(async (req, res) => {
+router.get('/reports', requireAdmin, auditView('Report', { logViews: true }), asyncHandler(async (req, res) => {
   // TODO: Implement reports listing with filters
   res.status(501).json({
     success: false,
@@ -36,7 +45,7 @@ router.get('/reports', requireAdmin, asyncHandler(async (req, res) => {
 }));
 
 // Get specific report details
-router.get('/reports/:id', requireAdmin, asyncHandler(async (req, res) => {
+router.get('/reports/:id', requireAdmin, auditView('Report', { logViews: true }), asyncHandler(async (req, res) => {
   // TODO: Implement report details retrieval
   res.status(501).json({
     success: false,
@@ -47,7 +56,7 @@ router.get('/reports/:id', requireAdmin, asyncHandler(async (req, res) => {
 
 // Update report status
 router.put('/reports/:id/status', requireAdmin, asyncHandler(async (req, res) => {
-  // TODO: Implement report status updates
+  // TODO: Implement report status updates with audit logging
   res.status(501).json({
     success: false,
     message: 'Report status update endpoint not implemented yet',
@@ -93,7 +102,7 @@ router.post('/events', requireAdmin, asyncHandler(async (req, res) => {
  * Contact Messages Routes (Admin access)
  */
 
-router.get('/contact-messages', requireAdmin, asyncHandler(async (req, res) => {
+router.get('/contact-messages', requireAdmin, auditView('ContactMessage', { logViews: true }), asyncHandler(async (req, res) => {
   res.status(501).json({
     success: false,
     message: 'Contact messages endpoint not implemented yet'
@@ -121,14 +130,27 @@ router.post('/users', requireSuperAdmin, asyncHandler(async (req, res) => {
   });
 }));
 
-// Audit logs (Super Admin only)
-router.get('/audit-logs', requireSuperAdmin, asyncHandler(async (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Audit logs endpoint not implemented yet',
-    note: 'Super Admin access required'
-  });
-}));
+/**
+ * Audit Logs Routes (Super Admin only)
+ */
+
+// Get all audit logs with filtering
+router.get('/audit-logs', requireSuperAdmin, auditView('AuditLog', { logViews: true }), getAuditLogs);
+
+// Get audit statistics
+router.get('/audit-logs/statistics', requireSuperAdmin, getAuditStatistics);
+
+// Export audit logs
+router.get('/audit-logs/export', requireSuperAdmin, exportAuditLogs);
+
+// Get audit logs for specific resource
+router.get('/audit-logs/resource/:resourceType/:resourceId', requireSuperAdmin, getResourceAuditLogs);
+
+// Get audit logs for specific admin
+router.get('/audit-logs/admin/:adminId', requireSuperAdmin, getAdminAuditLogs);
+
+// Get current admin's own activity logs (all admins can see their own)
+router.get('/audit-logs/my-activity', requireAdmin, getMyAuditLogs);
 
 // System settings (Super Admin only)
 router.get('/settings', requireSuperAdmin, asyncHandler(async (req, res) => {

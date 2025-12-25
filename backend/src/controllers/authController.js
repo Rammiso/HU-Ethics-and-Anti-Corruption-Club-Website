@@ -31,8 +31,9 @@ export const login = asyncHandler(async (req, res) => {
 export const logout = asyncHandler(async (req, res) => {
   const adminId = req.admin.id;
   const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('User-Agent');
   
-  const result = await authService.logout(adminId, ipAddress);
+  const result = await authService.logout(adminId, ipAddress, userAgent);
   
   res.status(200).json({
     success: true,
@@ -62,8 +63,10 @@ export const getProfile = asyncHandler(async (req, res) => {
 export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   const adminId = req.admin.id;
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('User-Agent');
   
-  const result = await authService.changePassword(adminId, currentPassword, newPassword);
+  const result = await authService.changePassword(adminId, currentPassword, newPassword, ipAddress, userAgent);
   
   res.status(200).json({
     success: true,

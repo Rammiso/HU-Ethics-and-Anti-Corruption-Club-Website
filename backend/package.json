@@ -11,6 +11,7 @@
     "test:watch": "jest --watch",
     "test:db": "node src/scripts/testConnection.js",
     "test:auth": "node src/scripts/testAuth.js",
+    "test:audit": "node src/scripts/testAudit.js",
     "create:admin": "node src/scripts/createAdmin.js",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix"

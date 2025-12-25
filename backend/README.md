@@ -116,6 +116,7 @@ npm run test        # Run test suite
 npm run test:watch  # Run tests in watch mode
 npm run test:db     # Test database connection
 npm run test:auth   # Test authentication system
+npm run test:audit  # Test audit logging system
 npm run create:admin # Create initial admin users
 npm run lint        # Check code style
 npm run lint:fix    # Fix code style issues
