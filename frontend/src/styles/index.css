@@ -211,8 +211,12 @@ body {
     animation: fadeIn 0.5s ease-in-out;
   }
 
-  .animate-slide-in {
-    animation: slideIn 0.3s ease-out;
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .animate-slide-out-right {
+    animation: slideOutRight 0.3s ease-out;
   }
 
   .animate-glow {

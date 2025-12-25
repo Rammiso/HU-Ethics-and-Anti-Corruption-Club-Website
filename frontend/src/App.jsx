@@ -11,6 +11,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import HomePage from './pages/public/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import Dashboard from './pages/admin/Dashboard';
+import ProfilePage from './pages/admin/ProfilePage';
 import NewsPage from './pages/admin/NewsPage';
 import EventsPage from './pages/admin/EventsPage';
 import ReportsPage from './pages/admin/ReportsPage';
@@ -39,8 +40,16 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/news" element={
+                  <Route path="/profile" element={
                     <ProtectedRoute>
+                      <Layout>
+                        <ProfilePage />
+                      </Layout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/news" element={
+                    <ProtectedRoute requiredPermissions={['manage_news', 'manage_content']}>
                       <Layout>
                         <NewsPage />
                       </Layout>
@@ -48,7 +57,7 @@ function App() {
                   } />
                   
                   <Route path="/events" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermissions={['manage_events', 'manage_content']}>
                       <Layout>
                         <EventsPage />
                       </Layout>
@@ -56,7 +65,7 @@ function App() {
                   } />
                   
                   <Route path="/reports" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermissions={['manage_reports', 'view_reports']}>
                       <Layout>
                         <ReportsPage />
                       </Layout>
@@ -70,9 +79,22 @@ function App() {
                         <Routes>
                           <Route index element={<Navigate to="/dashboard" replace />} />
                           <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="news" element={<NewsPage />} />
-                          <Route path="events" element={<EventsPage />} />
-                          <Route path="reports" element={<ReportsPage />} />
+                          <Route path="profile" element={<ProfilePage />} />
+                          <Route path="news" element={
+                            <ProtectedRoute requiredPermissions={['manage_news', 'manage_content']}>
+                              <NewsPage />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="events" element={
+                            <ProtectedRoute requiredPermissions={['manage_events', 'manage_content']}>
+                              <EventsPage />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="reports" element={
+                            <ProtectedRoute requiredPermissions={['manage_reports', 'view_reports']}>
+                              <ReportsPage />
+                            </ProtectedRoute>
+                          } />
                           <Route path="*" element={<Navigate to="/dashboard" replace />} />
                         </Routes>
                       </Layout>

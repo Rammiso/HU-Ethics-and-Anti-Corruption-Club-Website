@@ -17,6 +17,33 @@ export const slugSchema = z
   .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens')
   .transform(str => str.toLowerCase().replace(/\s+/g, '-'));
 
+// Authentication schemas
+export const loginSchema = z.object({
+  email: z.string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address')
+    .transform(str => str.toLowerCase().trim()),
+  password: z.string()
+    .min(1, 'Password is required')
+    .min(6, 'Password must be at least 6 characters')
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: passwordSchema,
+  confirmPassword: z.string().min(1, 'Please confirm your password')
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword']
+});
+
+export const profileUpdateSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
+  email: emailSchema,
+  phone: z.string().optional(),
+  bio: z.string().max(500, 'Bio must be less than 500 characters').optional()
+});
+
 // News schemas
 export const newsSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -109,23 +136,14 @@ export const reportCategorySchema = z.object({
 export const userSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
   email: emailSchema,
-  role: z.enum(['system_admin', 'case_manager', 'content_manager', 'pr_officer'], {
+  role: z.enum(['SUPER_ADMIN', 'ADMIN', 'CASE_MANAGER', 'CONTENT_MANAGER', 'PR_OFFICER'], {
     required_error: 'Role is required'
   }),
-  isActive: z.boolean().optional()
+  status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional()
 });
 
 export const userUpdateSchema = userSchema.partial().extend({
   id: z.string().min(1, 'User ID is required')
-});
-
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: passwordSchema,
-  confirmPassword: z.string().min(1, 'Please confirm your password')
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
 });
 
 // File upload schemas

@@ -1,118 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
-import { Eye, EyeOff, Shield, AlertCircle, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Shield, AlertCircle, Loader2, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../hooks/useNotification';
+import { useForm } from '../../hooks/useForm';
 import { cn } from '../../utils/helpers';
+import { loginSchema } from '../../utils/schemas';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const { login, isAuthenticated, loading: authLoading, sessionExpired } = useAuth();
+  const { showNotification, error: showError } = useNotification();
+  const location = useLocation();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    clearErrors
+  } = useForm(loginSchema, {
     email: '',
     password: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, isAuthenticated, loading } = useAuth();
-  const { showNotification } = useNotification();
-  const location = useLocation();
+  // Handle session expiry notification
+  useEffect(() => {
+    if (sessionExpired) {
+      showError('Session Expired', 'Your session has expired. Please log in again.');
+    }
+  }, [sessionExpired, showError]);
+
+  // Listen for session expiry events
+  useEffect(() => {
+    const handleSessionExpiry = () => {
+      showError('Session Expired', 'Your session has expired. Please log in again.');
+    };
+
+    window.addEventListener('auth:session-expired', handleSessionExpiry);
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpiry);
+  }, [showError]);
 
   // Redirect if already authenticated
-  if (isAuthenticated && !loading) {
+  if (isAuthenticated && !authLoading) {
     const from = location.state?.from?.pathname || '/dashboard';
     return <Navigate to={from} replace />;
   }
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    
+  const onSubmit = async (data) => {
     try {
-      await login(formData.email, formData.password);
+      clearErrors();
+      
+      const result = await login(data.email, data.password, rememberMe);
       
       showNotification({
         type: 'success',
         title: 'Login Successful',
-        message: 'Welcome back to HUEACC Admin Panel'
+        message: `Welcome back, ${result.user.name}!`
       });
 
       // Navigation will be handled by the redirect logic above
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (err) {
+      console.error('Login error:', err);
       
-      let errorMessage = 'Login failed. Please try again.';
-      
-      if (error.response?.status === 401) {
-        errorMessage = 'Invalid email or password';
-      } else if (error.response?.status === 429) {
-        errorMessage = 'Too many login attempts. Please try again later.';
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (!error.response) {
-        errorMessage = 'Network error. Please check your connection.';
+      // Handle specific error cases
+      if (err.message.includes('email') || err.message.includes('password')) {
+        setError('email', { message: err.message });
+      } else if (err.message.includes('suspended') || err.message.includes('inactive')) {
+        setError('root', { message: err.message });
+      } else if (err.message.includes('attempts')) {
+        setError('root', { message: err.message });
+      } else {
+        setError('root', { message: err.message || 'Login failed. Please try again.' });
       }
-
-      showNotification({
-        type: 'error',
-        title: 'Login Failed',
-        message: errorMessage
-      });
-
-      // Set form-level error
-      setErrors({
-        form: errorMessage
-      });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-neon-green" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -138,119 +119,83 @@ const LoginPage = () => {
 
         {/* Login Form */}
         <div className="glass-card">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             {/* Form-level Error */}
-            {errors.form && (
+            {errors.root && (
               <div className="flex items-center gap-3 p-4 rounded-lg bg-error-500/10 border border-error-500/20">
                 <AlertCircle className="w-5 h-5 text-error-500 flex-shrink-0" />
-                <p className="text-sm text-error-500">{errors.form}</p>
+                <p className="text-sm text-error-500">{errors.root.message}</p>
+              </div>
+            )}
+
+            {/* Session Expired Warning */}
+            {sessionExpired && (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-warning-500/10 border border-warning-500/20">
+                <Lock className="w-5 h-5 text-warning-500 flex-shrink-0" />
+                <p className="text-sm text-warning-500">
+                  Your session has expired. Please log in again.
+                </p>
               </div>
             )}
 
             {/* Email Field */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className={cn(
-                  'w-full px-4 py-3 rounded-lg glass border transition-all duration-200',
-                  'bg-transparent text-foreground placeholder:text-muted-foreground',
-                  'focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent',
-                  errors.email 
-                    ? 'border-error-500 focus:ring-error-500' 
-                    : 'border-white/10 hover:border-white/20'
-                )}
-                placeholder="admin@hueacc.edu.et"
-                disabled={isSubmitting}
-              />
-              {errors.email && (
-                <p className="text-sm text-error-500 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.email}
-                </p>
-              )}
-            </div>
+            <Input
+              {...register('email')}
+              type="email"
+              label="Email Address"
+              placeholder="admin@hueacc.edu.et"
+              leftIcon={Mail}
+              error={errors.email?.message}
+              disabled={isSubmitting}
+              autoComplete="email"
+              required
+            />
 
             {/* Password Field */}
-            <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </label>
-              <div className="relative">
+            <Input
+              {...register('password')}
+              type="password"
+              label="Password"
+              placeholder="Enter your password"
+              leftIcon={Lock}
+              showPasswordToggle
+              error={errors.password?.message}
+              disabled={isSubmitting}
+              autoComplete="current-password"
+              required
+            />
+
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={cn(
-                    'w-full px-4 py-3 pr-12 rounded-lg glass border transition-all duration-200',
-                    'bg-transparent text-foreground placeholder:text-muted-foreground',
-                    'focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent',
-                    errors.password 
-                      ? 'border-error-500 focus:ring-error-500' 
-                      : 'border-white/10 hover:border-white/20'
-                  )}
-                  placeholder="Enter your password"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="rounded border-gray-300 text-neon-green focus:ring-neon-green"
                   disabled={isSubmitting}
                 />
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-neon-green"
-                  disabled={isSubmitting}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-muted-foreground" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-muted-foreground" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-sm text-error-500 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.password}
-                </p>
-              )}
+                <span className="text-sm text-muted-foreground">Remember me</span>
+              </label>
+              
+              <Link
+                to="/forgot-password"
+                className="text-sm text-neon-green hover:text-neon-green/80 transition-colors"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
+              loading={isSubmitting}
               disabled={isSubmitting}
-              className={cn(
-                'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg',
-                'bg-gradient-to-r from-neon-green to-green-500 text-white font-medium',
-                'hover:from-neon-green/90 hover:to-green-500/90 hover:shadow-neon',
-                'focus:outline-none focus:ring-2 focus:ring-neon-green focus:ring-offset-2 focus:ring-offset-background',
-                'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none',
-                'transition-all duration-200 hover-lift'
-              )}
+              className="w-full"
+              leftIcon={!isSubmitting ? Shield : undefined}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  <Shield className="w-5 h-5" />
-                  Sign In
-                </>
-              )}
-            </button>
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            </Button>
           </form>
 
           {/* Footer */}
@@ -277,6 +222,20 @@ const LoginPage = () => {
           >
             ← Back to Home
           </Link>
+        </div>
+
+        {/* Security Notice */}
+        <div className="mt-8 p-4 rounded-lg bg-muted/20 border border-muted/40">
+          <div className="flex items-start gap-3">
+            <Shield className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-muted-foreground">
+              <p className="font-medium mb-1">Security Notice</p>
+              <p>
+                This is a secure admin area. All activities are logged and monitored. 
+                Unauthorized access attempts will be reported.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
