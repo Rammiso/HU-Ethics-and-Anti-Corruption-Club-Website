@@ -1,22 +1,41 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
-import { NotificationProvider } from './context/NotificationContext';
-import Layout from './components/layout/Layout';
-import ErrorBoundary from './components/common/ErrorBoundary';
-import ProtectedRoute from './routes/ProtectedRoute';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
+import Layout from "./components/layout/Layout";
+import PublicLayout from "./components/layout/PublicLayout";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
-// Pages
-import HomePage from './pages/public/HomePage';
-import LoginPage from './pages/auth/LoginPage';
-import Dashboard from './pages/admin/Dashboard';
-import ProfilePage from './pages/admin/ProfilePage';
-import NewsPage from './pages/admin/NewsPage';
-import EventsPage from './pages/admin/EventsPage';
-import ReportsPage from './pages/admin/ReportsPage';
+// Public Pages
+import HomePage from "./pages/public/HomePage";
+import AboutPage from "./pages/public/AboutPage";
+import NewsListingPage from "./pages/public/NewsListingPage";
+import NewsDetailPage from "./pages/public/NewsDetailPage";
+import EventsListingPage from "./pages/public/EventsListingPage";
+import EventDetailPage from "./pages/public/EventDetailPage";
+import AnonymousReportPage from "./pages/public/AnonymousReportPage";
+import ReportTrackingPage from "./pages/public/ReportTrackingPage";
+import ContactPage from "./pages/public/ContactPage";
+import NotFoundPage from "./pages/public/NotFoundPage";
 
-import './styles/index.css';
+// Auth Pages
+import LoginPage from "./pages/auth/LoginPage";
+
+// Admin Pages
+import Dashboard from "./pages/admin/Dashboard";
+import ProfilePage from "./pages/admin/ProfilePage";
+import NewsPage from "./pages/admin/NewsPage";
+import EventsPage from "./pages/admin/EventsPage";
+import ReportsPage from "./pages/admin/ReportsPage";
+
+import "./styles/index.css";
 
 function App() {
   return (
@@ -27,82 +46,170 @@ function App() {
             <NotificationProvider>
               <div className="App">
                 <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<HomePage />} />
+                  {/* Public Routes - No Authentication Required */}
+                  <Route
+                    path="/"
+                    element={
+                      <PublicLayout>
+                        <HomePage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/about"
+                    element={
+                      <PublicLayout>
+                        <AboutPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/news"
+                    element={
+                      <PublicLayout>
+                        <NewsListingPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/news/:slug"
+                    element={
+                      <PublicLayout>
+                        <NewsDetailPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/events"
+                    element={
+                      <PublicLayout>
+                        <EventsListingPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/events/:slug"
+                    element={
+                      <PublicLayout>
+                        <EventDetailPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/report"
+                    element={
+                      <PublicLayout>
+                        <AnonymousReportPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/report/track"
+                    element={
+                      <PublicLayout>
+                        <ReportTrackingPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/contact"
+                    element={
+                      <PublicLayout>
+                        <ContactPage />
+                      </PublicLayout>
+                    }
+                  />
+
+                  {/* Auth Routes */}
                   <Route path="/login" element={<LoginPage />} />
-                  
+
                   {/* Protected Admin Routes */}
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Dashboard />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <ProfilePage />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/news" element={
-                    <ProtectedRoute requiredPermissions={['manage_news', 'manage_content']}>
-                      <Layout>
-                        <NewsPage />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/events" element={
-                    <ProtectedRoute requiredPermissions={['manage_events', 'manage_content']}>
-                      <Layout>
-                        <EventsPage />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/reports" element={
-                    <ProtectedRoute requiredPermissions={['manage_reports', 'view_reports']}>
-                      <Layout>
-                        <ReportsPage />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Dashboard />
+                        </Layout>
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <ProfilePage />
+                        </Layout>
+                      </ProtectedRoute>
+                    }
+                  />
+
                   {/* Admin Routes with nested routing */}
-                  <Route path="/admin/*" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Routes>
-                          <Route index element={<Navigate to="/dashboard" replace />} />
-                          <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="profile" element={<ProfilePage />} />
-                          <Route path="news" element={
-                            <ProtectedRoute requiredPermissions={['manage_news', 'manage_content']}>
-                              <NewsPage />
-                            </ProtectedRoute>
-                          } />
-                          <Route path="events" element={
-                            <ProtectedRoute requiredPermissions={['manage_events', 'manage_content']}>
-                              <EventsPage />
-                            </ProtectedRoute>
-                          } />
-                          <Route path="reports" element={
-                            <ProtectedRoute requiredPermissions={['manage_reports', 'view_reports']}>
-                              <ReportsPage />
-                            </ProtectedRoute>
-                          } />
-                          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                        </Routes>
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  
-                  {/* Fallback redirects */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route
+                    path="/admin/*"
+                    element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Routes>
+                            <Route
+                              index
+                              element={<Navigate to="/dashboard" replace />}
+                            />
+                            <Route path="dashboard" element={<Dashboard />} />
+                            <Route path="profile" element={<ProfilePage />} />
+                            <Route
+                              path="news"
+                              element={
+                                <ProtectedRoute
+                                  requiredPermissions={[
+                                    "manage_news",
+                                    "manage_content",
+                                  ]}
+                                >
+                                  <NewsPage />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="events"
+                              element={
+                                <ProtectedRoute
+                                  requiredPermissions={[
+                                    "manage_events",
+                                    "manage_content",
+                                  ]}
+                                >
+                                  <EventsPage />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="reports"
+                              element={
+                                <ProtectedRoute
+                                  requiredPermissions={[
+                                    "manage_reports",
+                                    "view_reports",
+                                  ]}
+                                >
+                                  <ReportsPage />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="*"
+                              element={<Navigate to="/dashboard" replace />}
+                            />
+                          </Routes>
+                        </Layout>
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* 404 - Not Found */}
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </div>
             </NotificationProvider>
