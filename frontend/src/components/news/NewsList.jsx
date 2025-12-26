@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, Search, Filter } from 'lucide-react';
-import { newsService } from '../../services/newsService';
-import { useNotification } from '../../hooks/useNotification';
-import { useDataTable } from '../../hooks/useDataTable';
-import { formatDate, formatRelativeTime } from '../../utils/helpers';
-import { NEWS_STATUS } from '../../utils/constants';
-import Button from '../ui/Button';
-import DataTable from '../ui/DataTable';
-import Modal from '../ui/Modal';
-import Select from '../ui/Select';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import NewsForm from './NewsForm';
+import React, { useState, useEffect } from "react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, Filter } from "lucide-react";
+import { newsService } from "../../services/newsService";
+import { useNotification } from "../../hooks/useNotification";
+import { useDataTable } from "../../hooks/useDataTable";
+import { formatDate, formatRelativeTime } from "../../utils/helpers";
+import { NEWS_STATUS } from "../../utils/constants";
+import Button from "../ui/Button";
+import DataTable from "../ui/DataTable";
+import Modal from "../ui/Modal";
+import Select from "../ui/Select";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
+// import NewsForm from './NewsForm'; // TODO: Create NewsForm component
 
 const NewsList = () => {
   const [news, setNews] = useState([]);
@@ -19,9 +19,9 @@ const NewsList = () => {
   const [editingNews, setEditingNews] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingNews, setDeletingNews] = useState(null);
-  
+
   const { success, error } = useNotification();
-  
+
   const {
     data: tableData,
     pagination,
@@ -33,13 +33,13 @@ const NewsList = () => {
     handleRowSelect,
     handleSelectAll,
     clearSelection,
-    refreshData
+    refreshData,
   } = useDataTable(news, {
     pageSize: 10,
     enableSearch: true,
     enableSorting: true,
     enableFiltering: true,
-    enablePagination: true
+    enablePagination: true,
   });
 
   // Fetch news data
@@ -51,8 +51,8 @@ const NewsList = () => {
       setNews(newsData);
       return newsData;
     } catch (err) {
-      console.error('Failed to fetch news:', err);
-      error('Error', 'Failed to load news articles');
+      console.error("Failed to fetch news:", err);
+      error("Error", "Failed to load news articles");
       return [];
     } finally {
       setLoading(false);
@@ -86,13 +86,13 @@ const NewsList = () => {
 
     try {
       await newsService.deleteNews(deletingNews.id);
-      success('Success', 'News article deleted successfully');
+      success("Success", "News article deleted successfully");
       await refreshData(fetchNews);
       setShowDeleteModal(false);
       setDeletingNews(null);
     } catch (err) {
-      console.error('Failed to delete news:', err);
-      error('Error', 'Failed to delete news article');
+      console.error("Failed to delete news:", err);
+      error("Error", "Failed to delete news article");
     }
   };
 
@@ -100,12 +100,17 @@ const NewsList = () => {
   const handleTogglePublish = async (newsItem) => {
     try {
       await newsService.togglePublishStatus(newsItem.id);
-      const newStatus = newsItem.status === 'published' ? 'draft' : 'published';
-      success('Success', `News article ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+      const newStatus = newsItem.status === "published" ? "draft" : "published";
+      success(
+        "Success",
+        `News article ${
+          newStatus === "published" ? "published" : "unpublished"
+        } successfully`
+      );
       await refreshData(fetchNews);
     } catch (err) {
-      console.error('Failed to toggle publish status:', err);
-      error('Error', 'Failed to update news status');
+      console.error("Failed to toggle publish status:", err);
+      error("Error", "Failed to update news status");
     }
   };
 
@@ -114,17 +119,17 @@ const NewsList = () => {
     try {
       if (editingNews) {
         await newsService.updateNews(editingNews.id, formData);
-        success('Success', 'News article updated successfully');
+        success("Success", "News article updated successfully");
       } else {
         await newsService.createNews(formData);
-        success('Success', 'News article created successfully');
+        success("Success", "News article created successfully");
       }
-      
+
       setShowForm(false);
       setEditingNews(null);
       await refreshData(fetchNews);
     } catch (err) {
-      console.error('Failed to save news:', err);
+      console.error("Failed to save news:", err);
       throw err; // Let the form handle the error
     }
   };
@@ -135,12 +140,15 @@ const NewsList = () => {
 
     try {
       await newsService.bulkDelete(selectedRows);
-      success('Success', `${selectedRows.length} news articles deleted successfully`);
+      success(
+        "Success",
+        `${selectedRows.length} news articles deleted successfully`
+      );
       clearSelection();
       await refreshData(fetchNews);
     } catch (err) {
-      console.error('Failed to bulk delete:', err);
-      error('Error', 'Failed to delete selected articles');
+      console.error("Failed to bulk delete:", err);
+      error("Error", "Failed to delete selected articles");
     }
   };
 
@@ -149,76 +157,90 @@ const NewsList = () => {
 
     try {
       await newsService.bulkUpdateStatus(selectedRows, status);
-      success('Success', `${selectedRows.length} news articles updated successfully`);
+      success(
+        "Success",
+        `${selectedRows.length} news articles updated successfully`
+      );
       clearSelection();
       await refreshData(fetchNews);
     } catch (err) {
-      console.error('Failed to bulk update status:', err);
-      error('Error', 'Failed to update selected articles');
+      console.error("Failed to bulk update status:", err);
+      error("Error", "Failed to update selected articles");
     }
   };
 
   // Table columns configuration
   const columns = [
     {
-      key: 'title',
-      title: 'Title',
+      key: "title",
+      title: "Title",
       sortable: true,
       render: (value, row) => (
         <div>
           <div className="font-medium text-sm">{value}</div>
           <div className="text-xs text-muted-foreground">{row.slug}</div>
         </div>
-      )
+      ),
     },
     {
-      key: 'status',
-      title: 'Status',
+      key: "status",
+      title: "Status",
       sortable: true,
       render: (value) => {
         const statusConfig = {
-          draft: { label: 'Draft', className: 'bg-gray-100 text-gray-800' },
-          scheduled: { label: 'Scheduled', className: 'bg-blue-100 text-blue-800' },
-          published: { label: 'Published', className: 'bg-green-100 text-green-800' },
-          archived: { label: 'Archived', className: 'bg-yellow-100 text-yellow-800' }
+          draft: { label: "Draft", className: "bg-gray-100 text-gray-800" },
+          scheduled: {
+            label: "Scheduled",
+            className: "bg-blue-100 text-blue-800",
+          },
+          published: {
+            label: "Published",
+            className: "bg-green-100 text-green-800",
+          },
+          archived: {
+            label: "Archived",
+            className: "bg-yellow-100 text-yellow-800",
+          },
         };
-        
+
         const config = statusConfig[value] || statusConfig.draft;
-        
+
         return (
-          <span className={`px-2 py-1 text-xs rounded-full ${config.className}`}>
+          <span
+            className={`px-2 py-1 text-xs rounded-full ${config.className}`}
+          >
             {config.label}
           </span>
         );
-      }
+      },
     },
     {
-      key: 'author',
-      title: 'Author',
+      key: "author",
+      title: "Author",
       sortable: true,
-      render: (value) => value?.name || 'Unknown'
+      render: (value) => value?.name || "Unknown",
     },
     {
-      key: 'publishDate',
-      title: 'Publish Date',
+      key: "publishDate",
+      title: "Publish Date",
       sortable: true,
-      render: (value) => value ? formatDate(value) : 'Not set'
+      render: (value) => (value ? formatDate(value) : "Not set"),
     },
     {
-      key: 'createdAt',
-      title: 'Created',
+      key: "createdAt",
+      title: "Created",
       sortable: true,
-      render: (value) => formatRelativeTime(value)
-    }
+      render: (value) => formatRelativeTime(value),
+    },
   ];
 
   // Status filter options
   const statusOptions = [
-    { value: '', label: 'All Status' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'scheduled', label: 'Scheduled' },
-    { value: 'published', label: 'Published' },
-    { value: 'archived', label: 'Archived' }
+    { value: "", label: "All Status" },
+    { value: "draft", label: "Draft" },
+    { value: "scheduled", label: "Scheduled" },
+    { value: "published", label: "Published" },
+    { value: "archived", label: "Archived" },
   ];
 
   return (
@@ -227,7 +249,9 @@ const NewsList = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">News Management</h1>
-          <p className="text-muted-foreground">Manage news articles and announcements</p>
+          <p className="text-muted-foreground">
+            Manage news articles and announcements
+          </p>
         </div>
         <Button onClick={handleCreate} leftIcon={Plus}>
           Create News
@@ -238,19 +262,25 @@ const NewsList = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{news.filter(n => n.status === 'published').length}</div>
+            <div className="text-2xl font-bold">
+              {news.filter((n) => n.status === "published").length}
+            </div>
             <div className="text-sm text-muted-foreground">Published</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{news.filter(n => n.status === 'draft').length}</div>
+            <div className="text-2xl font-bold">
+              {news.filter((n) => n.status === "draft").length}
+            </div>
             <div className="text-sm text-muted-foreground">Drafts</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{news.filter(n => n.status === 'scheduled').length}</div>
+            <div className="text-2xl font-bold">
+              {news.filter((n) => n.status === "scheduled").length}
+            </div>
             <div className="text-sm text-muted-foreground">Scheduled</div>
           </CardContent>
         </Card>
@@ -272,11 +302,11 @@ const NewsList = () => {
           ...pagination,
           onPageChange: handlePageChange,
           onNext: () => handlePageChange(pagination.currentPage + 1),
-          onPrevious: () => handlePageChange(pagination.currentPage - 1)
+          onPrevious: () => handlePageChange(pagination.currentPage - 1),
         }}
         sorting={{
           enabled: true,
-          onSort: handleSort
+          onSort: handleSort,
         }}
         filtering={{
           enabled: true,
@@ -284,15 +314,15 @@ const NewsList = () => {
             <Select
               placeholder="Filter by status"
               options={statusOptions}
-              onChange={(e) => handleFilter('status', e.target.value)}
+              onChange={(e) => handleFilter("status", e.target.value)}
             />
-          )
+          ),
         }}
         selection={{
           enabled: true,
           onSelectionChange: (selected) => {
             // Handle selection change if needed
-          }
+          },
         }}
         actions={{
           header: selectedRows.length > 0 && (
@@ -300,14 +330,14 @@ const NewsList = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleBulkStatusUpdate('published')}
+                onClick={() => handleBulkStatusUpdate("published")}
               >
                 Publish Selected
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleBulkStatusUpdate('draft')}
+                onClick={() => handleBulkStatusUpdate("draft")}
               >
                 Unpublish Selected
               </Button>
@@ -334,9 +364,9 @@ const NewsList = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleTogglePublish(row)}
-                leftIcon={row.status === 'published' ? EyeOff : Eye}
+                leftIcon={row.status === "published" ? EyeOff : Eye}
               >
-                {row.status === 'published' ? 'Unpublish' : 'Publish'}
+                {row.status === "published" ? "Unpublish" : "Publish"}
               </Button>
               <Button
                 variant="ghost"
@@ -348,20 +378,21 @@ const NewsList = () => {
                 Delete
               </Button>
             </div>
-          )
+          ),
         }}
         onRowClick={handleEdit}
         emptyMessage="No news articles found. Create your first article to get started."
       />
 
       {/* News Form Modal */}
+      {/* TODO: Uncomment when NewsForm is created
       <Modal
         isOpen={showForm}
         onClose={() => {
           setShowForm(false);
           setEditingNews(null);
         }}
-        title={editingNews ? 'Edit News Article' : 'Create News Article'}
+        title={editingNews ? "Edit News Article" : "Create News Article"}
         size="xl"
       >
         <NewsForm
@@ -373,6 +404,7 @@ const NewsList = () => {
           }}
         />
       </Modal>
+      */}
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -393,17 +425,15 @@ const NewsList = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-            >
+            <Button variant="destructive" onClick={confirmDelete}>
               Delete
             </Button>
           </>
         }
       >
         <p>
-          Are you sure you want to delete "{deletingNews?.title}"? This action cannot be undone.
+          Are you sure you want to delete "{deletingNews?.title}"? This action
+          cannot be undone.
         </p>
       </Modal>
     </div>

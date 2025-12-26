@@ -233,22 +233,12 @@ export const copyToClipboard = async (text) => {
   }
 };
 
-export const debounce = (func, wait) => {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
-
-export const generateId = () => {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
-};
-
+/**
+ * Downloads a file from data
+ * @param {any} data - File data
+ * @param {string} filename - File name
+ * @param {string} type - MIME type
+ */
 export const downloadFile = (data, filename, type) => {
   const blob = new Blob([data], { type });
   const url = window.URL.createObjectURL(blob);

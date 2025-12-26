@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { 
-  Menu, 
-  Bell, 
-  Search, 
-  User, 
-  LogOut, 
+import React, { useState } from "react";
+import {
+  Menu,
+  Bell,
+  Search,
+  User,
+  LogOut,
   Settings,
-  ChevronDown
-} from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
-import ThemeToggle from '../common/ThemeToggle';
-import { cn } from '../../utils/helpers';
+  ChevronDown,
+} from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import ThemeToggle from "../common/ThemeToggle";
+import { cn } from "../../utils/helpers";
 
-const Topbar = ({ onSidebarToggle, className = '' }) => {
+const Topbar = ({ onSidebarToggle, className = "" }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -21,7 +21,7 @@ const Topbar = ({ onSidebarToggle, className = '' }) => {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
@@ -29,29 +29,31 @@ const Topbar = ({ onSidebarToggle, className = '' }) => {
   const notifications = [
     {
       id: 1,
-      title: 'New Report Submitted',
-      message: 'A new anonymous report has been submitted',
-      time: '5 minutes ago',
-      unread: true
+      title: "New Report Submitted",
+      message: "A new anonymous report has been submitted",
+      time: "5 minutes ago",
+      unread: true,
     },
     {
       id: 2,
-      title: 'System Update',
-      message: 'System maintenance completed successfully',
-      time: '1 hour ago',
-      unread: false
+      title: "System Update",
+      message: "System maintenance completed successfully",
+      time: "1 hour ago",
+      unread: false,
     },
   ];
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   return (
-    <header className={cn(
-      'sticky top-0 z-30 h-16 border-b border-white/10',
-      'glass backdrop-blur-md',
-      'flex items-center justify-between px-4 lg:px-6',
-      className
-    )}>
+    <header
+      className={cn(
+        "sticky top-0 z-30 h-16 border-b border-white/10",
+        "glass backdrop-blur-md",
+        "flex items-center justify-between px-4 lg:px-6",
+        className
+      )}
+    >
       {/* Left Section */}
       <div className="flex items-center gap-4">
         {/* Mobile menu button */}
@@ -114,15 +116,17 @@ const Topbar = ({ onSidebarToggle, className = '' }) => {
                   <div
                     key={notification.id}
                     className={cn(
-                      'p-4 border-b border-white/5 hover:bg-accent/50 transition-colors cursor-pointer',
-                      notification.unread && 'bg-primary/5'
+                      "p-4 border-b border-white/5 hover:bg-accent/50 transition-colors cursor-pointer",
+                      notification.unread && "bg-primary/5"
                     )}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={cn(
-                        'w-2 h-2 rounded-full mt-2',
-                        notification.unread ? 'bg-neon-green' : 'bg-muted'
-                      )} />
+                      <div
+                        className={cn(
+                          "w-2 h-2 rounded-full mt-2",
+                          notification.unread ? "bg-neon-green" : "bg-muted"
+                        )}
+                      />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">
                           {notification.title}
@@ -158,26 +162,34 @@ const Topbar = ({ onSidebarToggle, className = '' }) => {
               <User className="w-4 h-4 text-white" />
             </div>
             <div className="hidden md:block text-left">
-              <div className="text-sm font-medium">{user?.name || 'Admin User'}</div>
-              <div className="text-xs text-muted-foreground">{user?.role || 'Administrator'}</div>
+              <div className="text-sm font-medium">
+                {user?.name || "Admin User"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {user?.role || "Administrator"}
+              </div>
             </div>
-            <ChevronDown className={cn(
-              'w-4 h-4 transition-transform duration-200',
-              isProfileOpen && 'rotate-180'
-            )} />
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 transition-transform duration-200",
+                isProfileOpen && "rotate-180"
+              )}
+            />
           </button>
 
           {/* Profile Dropdown Menu */}
           {isProfileOpen && (
             <div className="absolute right-0 mt-2 w-56 glass rounded-xl shadow-2xl border border-white/10 z-50">
               <div className="p-4 border-b border-white/10">
-                <div className="font-medium">{user?.name || 'Admin User'}</div>
-                <div className="text-sm text-muted-foreground">{user?.email || 'admin@hueacc.edu.et'}</div>
+                <div className="font-medium">{user?.name || "Admin User"}</div>
+                <div className="text-sm text-muted-foreground">
+                  {user?.email || "admin@hueacc.edu.et"}
+                </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  Role: {user?.role || 'Administrator'}
+                  Role: {user?.role || "Administrator"}
                 </div>
               </div>
-              
+
               <div className="p-2">
                 <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors text-left">
                   <User className="w-4 h-4" />
@@ -188,9 +200,9 @@ const Topbar = ({ onSidebarToggle, className = '' }) => {
                   <span>Preferences</span>
                 </button>
               </div>
-              
+
               <div className="p-2 border-t border-white/10">
-                <button 
+                <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-error-500/10 hover:text-error-500 transition-colors text-left"
                 >
@@ -205,8 +217,8 @@ const Topbar = ({ onSidebarToggle, className = '' }) => {
 
       {/* Click outside handlers */}
       {(isProfileOpen || isNotificationsOpen) && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => {
             setIsProfileOpen(false);
             setIsNotificationsOpen(false);
