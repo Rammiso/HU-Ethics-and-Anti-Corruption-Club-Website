@@ -29,7 +29,7 @@ const EVENT_TYPES = [
 ];
 
 const EventsManagement = () => {
-  const { addNotification } = useNotification();
+  const { success, error: notifyError } = useNotification();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -72,7 +72,7 @@ const EventsManagement = () => {
       setEvents(response.data.events || []);
     } catch (error) {
       console.error("Failed to fetch events:", error);
-      addNotification("error", "Failed to fetch events");
+      notifyError("Error", "Failed to fetch events");
     } finally {
       setLoading(false);
     }
@@ -129,10 +129,10 @@ const EventsManagement = () => {
       try {
         await apiClient.delete(`/admin/events/${eventId}`);
         setEvents(events.filter((e) => e._id !== eventId && e.id !== eventId));
-        addNotification("success", "Event deleted successfully");
+        success("Success", "Event deleted successfully");
       } catch (error) {
         console.error("Failed to delete event:", error);
-        addNotification("error", "Failed to delete event");
+        notifyError("Error", "Failed to delete event");
       }
     }
   };
@@ -180,31 +180,42 @@ const EventsManagement = () => {
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
       };
 
+      console.log("Submitting payload:", payload);
+
       if (currentEvent) {
         await apiClient.put(
           `/admin/events/${currentEvent.id || currentEvent._id}`,
           payload
         );
-        addNotification("success", "Event updated successfully");
+        success("Success", "Event updated successfully");
       } else {
         await apiClient.post("/admin/events", payload);
-        addNotification("success", "Event created successfully");
+        success("Success", "Event created successfully");
       }
 
       fetchEvents();
       handleCloseModal();
     } catch (error) {
       console.error("Failed to save event:", error);
+      console.error("Error response:", error.response);
+      console.error("Error data:", error.response?.data);
+      console.error("Error status:", error.status);
 
       // Log validation details
       if (error.response?.data?.error?.details) {
-        console.error("Validation errors:", error.response.data.error.details);
+        console.error(
+          "Validation errors:",
+          JSON.stringify(error.response.data.error.details, null, 2)
+        );
       }
 
-      setFormError(
-        error.response?.data?.message ||
-          "Failed to save event. Please check your inputs."
-      );
+      const errorMessage =
+        error.response?.status === 409
+          ? "An event with this title already exists. Please choose a different title."
+          : error.response?.data?.message ||
+            "Failed to save event. Please check your inputs.";
+
+      setFormError(errorMessage);
     }
   };
 
