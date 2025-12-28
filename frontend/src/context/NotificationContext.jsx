@@ -1,29 +1,49 @@
-import React, { createContext, useState, useCallback } from 'react';
-import Toast from '../components/ui/Toast';
+import React, { createContext, useState, useCallback, useContext } from "react";
+import Toast from "../components/ui/Toast";
 
 export const NotificationContext = createContext(null);
+
+// Custom hook to use notifications
+export const useNotification = () => {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error(
+      "useNotification must be used within a NotificationProvider"
+    );
+  }
+  return context;
+};
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  const showNotification = useCallback(({ type = 'info', title, message, duration = 5000, persistent = false }) => {
-    const id = Date.now() + Math.random();
-    const notification = {
-      id,
-      type,
+  const showNotification = useCallback(
+    ({
+      type = "info",
       title,
       message,
-      timestamp: new Date(),
-      duration: persistent ? 0 : duration
-    };
-    
-    setNotifications(prev => [...prev, notification]);
-    
-    return id;
-  }, []);
+      duration = 5000,
+      persistent = false,
+    }) => {
+      const id = Date.now() + Math.random();
+      const notification = {
+        id,
+        type,
+        title,
+        message,
+        timestamp: new Date(),
+        duration: persistent ? 0 : duration,
+      };
+
+      setNotifications((prev) => [...prev, notification]);
+
+      return id;
+    },
+    []
+  );
 
   const removeNotification = useCallback((id) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
+    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   }, []);
 
   const clearAllNotifications = useCallback(() => {
@@ -31,21 +51,39 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   // Convenience methods
-  const success = useCallback((title, message, options = {}) => {
-    return showNotification({ type: 'success', title, message, ...options });
-  }, [showNotification]);
+  const success = useCallback(
+    (title, message, options = {}) => {
+      return showNotification({ type: "success", title, message, ...options });
+    },
+    [showNotification]
+  );
 
-  const error = useCallback((title, message, options = {}) => {
-    return showNotification({ type: 'error', title, message, duration: 0, ...options });
-  }, [showNotification]);
+  const error = useCallback(
+    (title, message, options = {}) => {
+      return showNotification({
+        type: "error",
+        title,
+        message,
+        duration: 0,
+        ...options,
+      });
+    },
+    [showNotification]
+  );
 
-  const warning = useCallback((title, message, options = {}) => {
-    return showNotification({ type: 'warning', title, message, ...options });
-  }, [showNotification]);
+  const warning = useCallback(
+    (title, message, options = {}) => {
+      return showNotification({ type: "warning", title, message, ...options });
+    },
+    [showNotification]
+  );
 
-  const info = useCallback((title, message, options = {}) => {
-    return showNotification({ type: 'info', title, message, ...options });
-  }, [showNotification]);
+  const info = useCallback(
+    (title, message, options = {}) => {
+      return showNotification({ type: "info", title, message, ...options });
+    },
+    [showNotification]
+  );
 
   const value = {
     notifications,

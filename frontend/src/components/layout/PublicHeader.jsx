@@ -65,18 +65,52 @@ const PublicHeader = () => {
               </Link>
             ))}
 
-            {!isAuthenticated && (
-              <Link to="/login" className="btn-neon flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Admin Login
-              </Link>
-            )}
+            {/* Authentication Buttons - Desktop */}
+            {(() => {
+              const userToken = localStorage.getItem("userToken");
+              const adminToken = localStorage.getItem("accessToken");
+              const userType = localStorage.getItem("userType");
 
-            {isAuthenticated && (
-              <Link to="/dashboard" className="btn-primary">
-                Dashboard
-              </Link>
-            )}
+              // Logged in as user
+              if (userToken && userType === "user") {
+                return (
+                  <>
+                    <Link
+                      to="/user/profile"
+                      className="btn-secondary flex items-center gap-2"
+                    >
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Link>
+                  </>
+                );
+              }
+
+              // Logged in as admin
+              if (adminToken && isAuthenticated) {
+                return (
+                  <Link to="/dashboard" className="btn-primary">
+                    Dashboard
+                  </Link>
+                );
+              }
+
+              // Not logged in
+              return (
+                <>
+                  <Link to="/user/register" className="btn-secondary">
+                    Register
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="btn-neon flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    Login
+                  </Link>
+                </>
+              );
+            })()}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -113,26 +147,60 @@ const PublicHeader = () => {
                 </Link>
               ))}
 
-              {!isAuthenticated && (
-                <Link
-                  to="/login"
-                  onClick={closeMobileMenu}
-                  className="btn-neon flex items-center gap-2 justify-center mt-2"
-                >
-                  <User className="w-4 h-4" />
-                  Admin Login
-                </Link>
-              )}
+              {/* Authentication Buttons - Mobile */}
+              {(() => {
+                const userToken = localStorage.getItem("userToken");
+                const adminToken = localStorage.getItem("accessToken");
+                const userType = localStorage.getItem("userType");
 
-              {isAuthenticated && (
-                <Link
-                  to="/dashboard"
-                  onClick={closeMobileMenu}
-                  className="btn-primary mt-2"
-                >
-                  Dashboard
-                </Link>
-              )}
+                // Logged in as user
+                if (userToken && userType === "user") {
+                  return (
+                    <Link
+                      to="/user/profile"
+                      onClick={closeMobileMenu}
+                      className="btn-secondary flex items-center gap-2 justify-center mt-2"
+                    >
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Link>
+                  );
+                }
+
+                // Logged in as admin
+                if (adminToken && isAuthenticated) {
+                  return (
+                    <Link
+                      to="/dashboard"
+                      onClick={closeMobileMenu}
+                      className="btn-primary mt-2"
+                    >
+                      Dashboard
+                    </Link>
+                  );
+                }
+
+                // Not logged in
+                return (
+                  <>
+                    <Link
+                      to="/user/register"
+                      onClick={closeMobileMenu}
+                      className="btn-secondary mt-2"
+                    >
+                      Register
+                    </Link>
+                    <Link
+                      to="/login"
+                      onClick={closeMobileMenu}
+                      className="btn-neon flex items-center gap-2 justify-center mt-2"
+                    >
+                      <User className="w-4 h-4" />
+                      Login
+                    </Link>
+                  </>
+                );
+              })()}
             </div>
           </nav>
         )}

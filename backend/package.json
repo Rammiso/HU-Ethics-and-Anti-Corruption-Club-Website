@@ -17,10 +17,21 @@
     "test:contact": "node src/scripts/testContact.js",
     "test:dashboard": "node src/scripts/testDashboard.js",
     "create:admin": "node src/scripts/createAdmin.js",
+    "seed": "node src/database/seeds/index.js",
+    "seed:news": "node src/database/seeds/newsSeeder.js",
+    "seed:events": "node src/database/seeds/eventsSeeder.js",
+    "seed:categories": "node src/database/seeds/categoriesSeeder.js",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix"
   },
-  "keywords": ["ethics", "anti-corruption", "university", "reporting", "mongodb", "express"],
+  "keywords": [
+    "ethics",
+    "anti-corruption",
+    "university",
+    "reporting",
+    "mongodb",
+    "express"
+  ],
   "author": "Haramaya University",
   "license": "UNLICENSED",
   "dependencies": {

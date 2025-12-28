@@ -1,19 +1,19 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-// Admin roles enum
-export const ADMIN_ROLES = {
-  ADMIN: "ADMIN",
-  SUPER_ADMIN: "SUPER_ADMIN",
+// Public user roles enum
+export const USER_ROLES = {
+  USER: "USER",
 };
 
-// Admin account status enum
-export const ADMIN_STATUS = {
+// User account status enum
+export const USER_STATUS = {
   ACTIVE: "ACTIVE",
-  DISABLED: "DISABLED",
+  INACTIVE: "INACTIVE",
+  SUSPENDED: "SUSPENDED",
 };
 
-const adminSchema = new mongoose.Schema(
+const publicUserSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -34,31 +34,41 @@ const adminSchema = new mongoose.Schema(
       select: false, // Never include password in queries by default
     },
 
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
-      maxlength: [100, "Name cannot exceed 100 characters"],
+    profile: {
+      name: {
+        type: String,
+        trim: true,
+        maxlength: [100, "Name cannot exceed 100 characters"],
+      },
+      avatar: {
+        type: String,
+        default: null,
+      },
     },
 
     role: {
       type: String,
       enum: {
-        values: Object.values(ADMIN_ROLES),
-        message: "Role must be either ADMIN or SUPER_ADMIN",
+        values: Object.values(USER_ROLES),
+        message: "Role must be USER",
       },
-      default: ADMIN_ROLES.ADMIN,
+      default: USER_ROLES.USER,
       required: true,
     },
 
     status: {
       type: String,
       enum: {
-        values: Object.values(ADMIN_STATUS),
-        message: "Status must be either ACTIVE or DISABLED",
+        values: Object.values(USER_STATUS),
+        message: "Status must be ACTIVE, INACTIVE, or SUSPENDED",
       },
-      default: ADMIN_STATUS.ACTIVE,
+      default: USER_STATUS.ACTIVE,
       required: true,
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
     },
 
     lastLogin: {
@@ -78,10 +88,13 @@ const adminSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // Adds createdAt and updatedAt automatically
+    collection: "publicusers", // Separate collection from admins
     toJSON: {
       transform: function (doc, ret) {
         delete ret.password;
         delete ret.__v;
+        delete ret.loginAttempts;
+        delete ret.lockUntil;
         return ret;
       },
     },
@@ -89,16 +102,16 @@ const adminSchema = new mongoose.Schema(
 );
 
 // Indexes for performance
-adminSchema.index({ status: 1 });
-adminSchema.index({ role: 1 });
+publicUserSchema.index({ status: 1 });
+publicUserSchema.index({ createdAt: -1 });
 
 // Virtual for checking if account is locked
-adminSchema.virtual("isLocked").get(function () {
+publicUserSchema.virtual("isLocked").get(function () {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
 // Pre-save middleware to hash password
-adminSchema.pre("save", async function (next) {
+publicUserSchema.pre("save", async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) return next();
 
@@ -113,7 +126,7 @@ adminSchema.pre("save", async function (next) {
 });
 
 // Instance method to compare password
-adminSchema.methods.comparePassword = async function (candidatePassword) {
+publicUserSchema.methods.comparePassword = async function (candidatePassword) {
   if (!candidatePassword) return false;
 
   try {
@@ -124,7 +137,7 @@ adminSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 // Instance method to increment login attempts
-adminSchema.methods.incLoginAttempts = async function () {
+publicUserSchema.methods.incLoginAttempts = async function () {
   // If we have a previous lock that has expired, restart at 1
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return this.updateOne({
@@ -147,33 +160,33 @@ adminSchema.methods.incLoginAttempts = async function () {
 };
 
 // Instance method to reset login attempts
-adminSchema.methods.resetLoginAttempts = async function () {
+publicUserSchema.methods.resetLoginAttempts = async function () {
   return this.updateOne({
     $unset: { loginAttempts: 1, lockUntil: 1 },
   });
 };
 
 // Instance method to update last login
-adminSchema.methods.updateLastLogin = async function () {
+publicUserSchema.methods.updateLastLogin = async function () {
   return this.updateOne({
     $set: { lastLogin: new Date() },
   });
 };
 
-// Static method to find active admin by email
-adminSchema.statics.findActiveByEmail = function (email) {
+// Static method to find active user by email
+publicUserSchema.statics.findActiveByEmail = function (email) {
   return this.findOne({
     email: email.toLowerCase(),
-    status: ADMIN_STATUS.ACTIVE,
+    status: USER_STATUS.ACTIVE,
   }).select("+password");
 };
 
-// Static method to create admin with hashed password
-adminSchema.statics.createAdmin = async function (adminData) {
-  const admin = new this(adminData);
-  return await admin.save();
+// Static method to create user
+publicUserSchema.statics.createUser = async function (userData) {
+  const user = new this(userData);
+  return await user.save();
 };
 
-const Admin = mongoose.model("Admin", adminSchema);
+const PublicUser = mongoose.model("PublicUser", publicUserSchema);
 
-export default Admin;
+export default PublicUser;

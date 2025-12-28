@@ -12,6 +12,7 @@ import Layout from "./components/layout/Layout";
 import PublicLayout from "./components/layout/PublicLayout";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import UserProtectedRoute from "./routes/UserProtectedRoute";
 
 // Public Pages
 import HomePage from "./pages/public/HomePage";
@@ -27,6 +28,11 @@ import NotFoundPage from "./pages/public/NotFoundPage";
 
 // Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import UserLoginPage from "./pages/auth/UserLoginPage";
+
+// User Pages
+import UserProfilePage from "./pages/user/UserProfilePage";
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
@@ -117,6 +123,34 @@ function App() {
                       <PublicLayout>
                         <ContactPage />
                       </PublicLayout>
+                    }
+                  />
+
+                  {/* User Auth Routes */}
+                  <Route
+                    path="/user/register"
+                    element={
+                      <PublicLayout>
+                        <RegisterPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/user/login"
+                    element={
+                      <PublicLayout>
+                        <UserLoginPage />
+                      </PublicLayout>
+                    }
+                  />
+                  <Route
+                    path="/user/profile"
+                    element={
+                      <UserProtectedRoute>
+                        <PublicLayout>
+                          <UserProfilePage />
+                        </PublicLayout>
+                      </UserProtectedRoute>
                     }
                   />
 
