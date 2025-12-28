@@ -84,41 +84,58 @@ const HomePage = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-green/10 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/10 rounded-full blur-3xl animate-pulse-slow" />
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+        {/* Futuristic Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/hero-bg.png"
+            alt="Futuristic Background"
+            className="w-full h-full object-cover"
+          />
+          {/* Futuristic Overlay Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background/90 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-r from-neon-blue/10 via-transparent to-neon-green/10" />
+          <div className="absolute inset-0 backdrop-blur-[2px]" />
         </div>
 
-        <div className="container mx-auto px-4 text-center relative z-10">
+        <div className="container mx-auto px-4 text-center relative z-10 transition-all duration-1000 animate-fade-in">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-bold font-display mb-6">
-              Promoting <span className="neon-text">Ethics</span> & Fighting{" "}
-              <span className="neon-text">Corruption</span>
+            <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-neon-green/30 bg-neon-green/5 backdrop-blur-md">
+              <span className="text-xs md:text-sm font-medium tracking-wider text-neon-green uppercase">
+                Official Platform for Integrity
+              </span>
+            </div>
+            <h2 className="text-5xl md:text-7xl font-bold font-display mb-8 leading-tight text-balance">
+              Safeguarding <span className="neon-text">Ethics</span> <br />
+              Eliminating <span className="neon-text">Corruption</span>
             </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Haramaya University Ethics and Anti-Corruption Club is dedicated
-              to fostering transparency, accountability, and ethical conduct
-              within our academic community.
+            <p className="text-lg md:text-xl text-foreground font-light mb-10 max-w-2xl mx-auto leading-relaxed opacity-90">
+              Haramaya University's premier digital hub for transparency and
+              accountability. Reporting corruption is the first step toward a
+              cleaner future.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link
-                to="#news"
-                className="btn-primary flex items-center gap-2 justify-center"
+                to="/report"
+                className="btn-primary px-8 py-4 text-lg rounded-xl flex items-center gap-3 w-full sm:w-auto shadow-neon hover:shadow-neon-lg transition-all duration-300"
               >
-                <FileText className="w-5 h-5" />
-                Latest News
+                <FileText className="w-6 h-6" />
+                Report Corruption
               </Link>
               <Link
-                to="#events"
-                className="btn-secondary flex items-center gap-2 justify-center"
+                to="#news"
+                className="btn-secondary px-8 py-4 text-lg rounded-xl flex items-center gap-3 w-full sm:w-auto bg-white/5 backdrop-blur-lg border-white/10 hover:bg-white/10 transition-all duration-300"
               >
-                <Calendar className="w-5 h-5" />
-                Upcoming Events
+                <Clock className="w-6 h-6" />
+                Latest News
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Decorative Scifi Elements */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+          <div className="w-px h-12 bg-gradient-to-b from-neon-green to-transparent" />
         </div>
       </section>
 
