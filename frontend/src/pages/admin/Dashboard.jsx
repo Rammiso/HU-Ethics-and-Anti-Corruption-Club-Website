@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  BarChart3, 
-  Users, 
-  FileText, 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  BarChart3,
+  Users,
+  FileText,
   Calendar,
   Shield,
   MessageSquare,
   TrendingUp,
-  AlertCircle
-} from 'lucide-react';
-import { apiClient } from '../../services/api';
-import Loading, { PageLoading } from '../../components/common/Loading';
-import { cn } from '../../utils/helpers';
+  AlertCircle,
+} from "lucide-react";
+import { apiClient } from "../../services/api";
+import Loading, { PageLoading } from "../../components/common/Loading";
+import { cn } from "../../utils/helpers";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
@@ -28,30 +30,35 @@ const Dashboard = () => {
         setError(null);
 
         // Fetch dashboard summary
-        const dashboardResponse = await apiClient.get('/admin/dashboard');
+        const dashboardResponse = await apiClient.get("/admin/dashboard");
         setDashboardData(dashboardResponse.data);
 
         // Fetch recent news (example integration)
         try {
-          const newsResponse = await apiClient.get('/public/news/published?limit=5');
+          const newsResponse = await apiClient.get(
+            "/public/news/published?limit=5"
+          );
           setNewsData(newsResponse.data?.news || []);
         } catch (newsError) {
-          console.warn('Failed to fetch news:', newsError);
+          console.warn("Failed to fetch news:", newsError);
           setNewsData([]);
         }
 
         // Fetch upcoming events (example integration)
         try {
-          const eventsResponse = await apiClient.get('/public/events/upcoming?limit=5');
+          const eventsResponse = await apiClient.get(
+            "/public/events/upcoming?limit=5"
+          );
           setEventsData(eventsResponse.data?.events || []);
         } catch (eventsError) {
-          console.warn('Failed to fetch events:', eventsError);
+          console.warn("Failed to fetch events:", eventsError);
           setEventsData([]);
         }
-
       } catch (err) {
-        console.error('Dashboard fetch error:', err);
-        setError(err.response?.data?.message || 'Failed to load dashboard data');
+        console.error("Dashboard fetch error:", err);
+        setError(
+          err.response?.data?.message || "Failed to load dashboard data"
+        );
       } finally {
         setLoading(false);
       }
@@ -69,9 +76,11 @@ const Dashboard = () => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-error-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Failed to load dashboard</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Failed to load dashboard
+          </h3>
           <p className="text-muted-foreground mb-4">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="btn-primary"
           >
@@ -89,58 +98,58 @@ const Dashboard = () => {
     totalNews: 45,
     totalEvents: 12,
     totalUsers: 8,
-    totalMessages: 89
+    totalMessages: 89,
   };
 
   const statCards = [
     {
-      title: 'Total Reports',
+      title: "Total Reports",
       value: stats.totalReports || 0,
-      change: '+12%',
-      changeType: 'positive',
+      change: "+12%",
+      changeType: "positive",
       icon: Shield,
-      color: 'from-neon-green to-green-400'
+      color: "from-neon-green to-green-400",
     },
     {
-      title: 'Pending Reports',
+      title: "Pending Reports",
       value: stats.pendingReports || 0,
-      change: '-5%',
-      changeType: 'negative',
+      change: "-5%",
+      changeType: "negative",
       icon: AlertCircle,
-      color: 'from-yellow-400 to-orange-400'
+      color: "from-yellow-400 to-orange-400",
     },
     {
-      title: 'News Articles',
+      title: "News Articles",
       value: stats.totalNews || 0,
-      change: '+8%',
-      changeType: 'positive',
+      change: "+8%",
+      changeType: "positive",
       icon: FileText,
-      color: 'from-blue-400 to-cyan-400'
+      color: "from-blue-400 to-cyan-400",
     },
     {
-      title: 'Events',
+      title: "Events",
       value: stats.totalEvents || 0,
-      change: '+15%',
-      changeType: 'positive',
+      change: "+15%",
+      changeType: "positive",
       icon: Calendar,
-      color: 'from-purple-400 to-pink-400'
+      color: "from-purple-400 to-pink-400",
     },
     {
-      title: 'Admin Users',
+      title: "Admin Users",
       value: stats.totalUsers || 0,
-      change: '0%',
-      changeType: 'neutral',
+      change: "0%",
+      changeType: "neutral",
       icon: Users,
-      color: 'from-indigo-400 to-blue-400'
+      color: "from-indigo-400 to-blue-400",
     },
     {
-      title: 'Messages',
+      title: "Messages",
       value: stats.totalMessages || 0,
-      change: '+3%',
-      changeType: 'positive',
+      change: "+3%",
+      changeType: "positive",
       icon: MessageSquare,
-      color: 'from-teal-400 to-green-400'
-    }
+      color: "from-teal-400 to-green-400",
+    },
   ];
 
   return (
@@ -169,18 +178,26 @@ const Dashboard = () => {
                   </p>
                   <p className="text-2xl font-bold mt-2">{stat.value}</p>
                   <div className="flex items-center mt-2">
-                    <TrendingUp className={cn(
-                      'w-4 h-4 mr-1',
-                      stat.changeType === 'positive' ? 'text-success-500' :
-                      stat.changeType === 'negative' ? 'text-error-500' :
-                      'text-muted-foreground'
-                    )} />
-                    <span className={cn(
-                      'text-sm font-medium',
-                      stat.changeType === 'positive' ? 'text-success-500' :
-                      stat.changeType === 'negative' ? 'text-error-500' :
-                      'text-muted-foreground'
-                    )}>
+                    <TrendingUp
+                      className={cn(
+                        "w-4 h-4 mr-1",
+                        stat.changeType === "positive"
+                          ? "text-success-500"
+                          : stat.changeType === "negative"
+                          ? "text-error-500"
+                          : "text-muted-foreground"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "text-sm font-medium",
+                        stat.changeType === "positive"
+                          ? "text-success-500"
+                          : stat.changeType === "negative"
+                          ? "text-error-500"
+                          : "text-muted-foreground"
+                      )}
+                    >
                       {stat.change}
                     </span>
                     <span className="text-sm text-muted-foreground ml-1">
@@ -188,11 +205,13 @@ const Dashboard = () => {
                     </span>
                   </div>
                 </div>
-                <div className={cn(
-                  'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center',
-                  'group-hover:scale-110 transition-transform duration-200',
-                  stat.color
-                )}>
+                <div
+                  className={cn(
+                    "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center",
+                    "group-hover:scale-110 transition-transform duration-200",
+                    stat.color
+                  )}
+                >
                   <Icon className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -207,11 +226,14 @@ const Dashboard = () => {
         <div className="glass-card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Recent News</h3>
-            <button className="text-sm text-primary hover:text-primary/80 transition-colors">
+            <button
+              onClick={() => navigate("/admin/news")}
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
+            >
               View All
             </button>
           </div>
-          
+
           {newsData.length > 0 ? (
             <div className="space-y-3">
               {newsData.slice(0, 5).map((article, index) => (
@@ -225,7 +247,9 @@ const Dashboard = () => {
                       {article.title || `News Article ${index + 1}`}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {article.publishDate ? new Date(article.publishDate).toLocaleDateString() : 'Recently published'}
+                      {article.publishDate
+                        ? new Date(article.publishDate).toLocaleDateString()
+                        : "Recently published"}
                     </p>
                   </div>
                 </div>
@@ -243,11 +267,14 @@ const Dashboard = () => {
         <div className="glass-card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Upcoming Events</h3>
-            <button className="text-sm text-primary hover:text-primary/80 transition-colors">
+            <button
+              onClick={() => navigate("/admin/events")}
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
+            >
               View All
             </button>
           </div>
-          
+
           {eventsData.length > 0 ? (
             <div className="space-y-3">
               {eventsData.slice(0, 5).map((event, index) => (
@@ -261,7 +288,9 @@ const Dashboard = () => {
                       {event.title || `Event ${index + 1}`}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {event.startDate ? new Date(event.startDate).toLocaleDateString() : 'Coming soon'}
+                      {event.startDate
+                        ? new Date(event.startDate).toLocaleDateString()
+                        : "Coming soon"}
                     </p>
                   </div>
                 </div>
@@ -280,19 +309,31 @@ const Dashboard = () => {
       <div className="glass-card">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="btn-neon flex flex-col items-center gap-2 p-4 h-auto">
+          <button
+            onClick={() => navigate("/admin/reports")}
+            className="btn-neon flex flex-col items-center gap-2 p-4 h-auto"
+          >
             <Shield className="w-6 h-6" />
             <span className="text-sm">View Reports</span>
           </button>
-          <button className="btn-neon flex flex-col items-center gap-2 p-4 h-auto">
+          <button
+            onClick={() => navigate("/admin/news")}
+            className="btn-neon flex flex-col items-center gap-2 p-4 h-auto"
+          >
             <FileText className="w-6 h-6" />
             <span className="text-sm">Create News</span>
           </button>
-          <button className="btn-neon flex flex-col items-center gap-2 p-4 h-auto">
+          <button
+            onClick={() => navigate("/admin/events")}
+            className="btn-neon flex flex-col items-center gap-2 p-4 h-auto"
+          >
             <Calendar className="w-6 h-6" />
             <span className="text-sm">Add Event</span>
           </button>
-          <button className="btn-neon flex flex-col items-center gap-2 p-4 h-auto">
+          <button
+            onClick={() => alert("Analytics feature coming soon!")}
+            className="btn-neon flex flex-col items-center gap-2 p-4 h-auto"
+          >
             <BarChart3 className="w-6 h-6" />
             <span className="text-sm">View Analytics</span>
           </button>

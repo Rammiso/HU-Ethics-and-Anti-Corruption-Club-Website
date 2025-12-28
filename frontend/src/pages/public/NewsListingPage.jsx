@@ -39,8 +39,8 @@ const NewsListingPage = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/v1/public/news/published");
-      const newsData = response.data?.news || response.news || [];
+      const response = await apiClient.get("/public/news/published");
+      const newsData = response.data?.news || [];
       setNews(newsData);
       setFilteredNews(newsData);
     } catch (error) {

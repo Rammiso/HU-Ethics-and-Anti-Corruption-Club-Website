@@ -25,9 +25,9 @@ const PublicHeader = () => {
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/about", label: "About" },
+    { path: "/report", label: "Report" },
     { path: "/news", label: "News" },
     { path: "/events", label: "Events" },
-    { path: "/report", label: "Report" },
     { path: "/contact", label: "Contact" },
   ];
 

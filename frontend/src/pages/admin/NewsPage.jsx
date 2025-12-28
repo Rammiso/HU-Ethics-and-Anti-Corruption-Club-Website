@@ -1,8 +1,8 @@
-import React from 'react';
-import NewsList from '../../components/news/NewsList';
+import React from "react";
+import NewsManagement from "./NewsManagement";
 
 const NewsPage = () => {
-  return <NewsList />;
+  return <NewsManagement />;
 };
 
 export default NewsPage;
